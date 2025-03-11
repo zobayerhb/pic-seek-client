@@ -43,14 +43,7 @@ const Create = () => {
       return true;
     }
   };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!checkUser()) return;
-
-    const form = e.target;
-    const prompt = form.prompt.value;
-    const category = form.category.value;
+  const validate = (prompt, category) => {
     // validation starts
     if (!category) {
       Swal.fire(
@@ -58,7 +51,7 @@ const Create = () => {
         "Select a Category from the dropdown",
         "error"
       );
-      return;
+      return false;
     }
     if (!prompt) {
       Swal.fire("Write a Prompt", "Write a prompt in the input", "error");
@@ -66,7 +59,7 @@ const Create = () => {
     }
     if (!prompt) {
       Swal.fire("Write a Prompt", "Write a prompt in the input", "error");
-      return;
+      return false;
     }
     if (prompt.trim().length < 20) {
       Swal.fire(
@@ -74,9 +67,20 @@ const Create = () => {
         "make your prompt bigger (minimum 20 character)",
         "error"
       );
-      return;
+      return false;
     }
     //validation End
+    return true;
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const prompt = form.prompt.value;
+    const category = form.category.value;
+
+    if (!checkUser()) return;
+    if (!validate(prompt, category)) return;
 
     console.log({ prompt, category });
     const finalPrompt = `imagine a ${category} : ${prompt}`;
