@@ -3,6 +3,9 @@ import PageTitle from "../components/shared/PageTitle";
 import { AuthContext } from "../provider/AuthProvider";
 import Swal from "sweetalert2";
 
+const imagBB = `https://api.imgbb.com/1/upload?key=${
+  import.meta.env.VITE_IMGBB_API_KEY
+}`;
 const Create = () => {
   const { user, login } = useContext(AuthContext);
   const options = [
@@ -98,6 +101,23 @@ const Create = () => {
     }
   };
 
+  // =========== GET IMAGE URL ==============
+  const getImageURL = async (buffer, prompt) => {
+    const imageFormData = new FormData();
+    imageFormData.append(
+      new Blob([buffer], { type: "image/jpeg" }),
+      `${prompt}.jpeg`
+    );
+
+    const response = await fetch(imagBB, {
+      method: "POST",
+      body: imageFormData,
+    });
+
+    const imgData = await response.json();
+    return imgData;
+  };
+
   // ========== FORM SUBMIT ==========
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,9 +132,9 @@ const Create = () => {
     console.log({ prompt, category });
 
     // === IMAGE BUFFER ===
-    const getImage = await getImageBuffer(prompt, category);
-    console.log(getImage);
-    return getImage;
+    const buffer = await getImageBuffer(prompt, category);
+    const url = await getImageURL(buffer, prompt);
+    console.log(url);
   };
 
   return (
