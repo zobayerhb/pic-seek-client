@@ -14,6 +14,7 @@ const Create = () => {
     "realistic-image",
   ];
 
+  // ========== CHECK USER EXIST OR NOT ===========
   const checkUser = () => {
     if (!user) {
       Swal.fire({
@@ -43,6 +44,8 @@ const Create = () => {
       return true;
     }
   };
+
+  // ======= INPUT VALIDATION =======
   const validate = (prompt, category) => {
     // validation starts
     if (!category) {
@@ -72,7 +75,31 @@ const Create = () => {
     //validation End
     return true;
   };
-  const handleSubmit = (e) => {
+
+  // ========= TEXT TO IMAGE GENERATOR ==========
+  const getImageBuffer = async (prompt, category) => {
+    const finalPrompt = `imagine a ${category} : ${prompt}`;
+    console.log(finalPrompt);
+    const finalForm = new FormData();
+    finalForm.append("prompt", prompt);
+
+    try {
+      const response = await fetch("https://clipdrop-api.co/text-to-image/v1", {
+        method: "POST",
+        headers: {
+          "x-api-key": import.meta.env.VITE_CD_API_KEY,
+        },
+        body: finalForm,
+      });
+      const buffer = response.arrayBuffer();
+      return buffer;
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  // ========== FORM SUBMIT ==========
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const form = e.target;
@@ -83,10 +110,13 @@ const Create = () => {
     if (!validate(prompt, category)) return;
 
     console.log({ prompt, category });
-    const finalPrompt = `imagine a ${category} : ${prompt}`;
-    console.log(finalPrompt);
-    return;
+
+    // === IMAGE BUFFER ===
+    const getImage = await getImageBuffer(prompt, category);
+    console.log(getImage);
+    return getImage;
   };
+
   return (
     <div>
       <PageTitle>🌱Let&apos;s Create 🐦‍🔥</PageTitle>
